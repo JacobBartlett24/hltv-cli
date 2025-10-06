@@ -3,12 +3,15 @@
   "dependencies": {
     "@types/blessed": "^0.1.25",
     "blessed": "^0.1.81",
+    "express": "^5.1.0",
     "jsdom": "^27.0.0",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^2.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.6.2",
+    "@types/socket.io-client": "^1.4.36",
     "typescript": "^5.9.3"
   },
   "scripts": {
