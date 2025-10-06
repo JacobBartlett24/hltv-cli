@@ -5,7 +5,6 @@ async function initScreen() {
     //   smartCSR: true,
     // });
     const matches = await hltv.fetchMatches();
-    console.log(matches);
     // const list = blessed.list({
     //     items: events.map(e => {
     //         return e.display

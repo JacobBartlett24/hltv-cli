@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+import { io } from "socket.io-client";
 
 type Event = {
     display: string,
@@ -57,6 +58,7 @@ export class HLTV {
     }
 
     async fetchMatches(){
+        await this.startWebsocket()
         const response = await fetch(`${this.baseUrl}`);
 
         const text = await response.text();
@@ -72,5 +74,26 @@ export class HLTV {
                 isLive: true
             } as Match
         })
+    }
+
+    async startWebsocket(){
+        const socket = io("https://scorebot-lb.hltv.org", {
+          path: "/socket.io",
+          transports: ["polling", "websocket"], // allow polling then upgrade
+          // Node-only: send headers (Origin/Referer/Cookie) similar to browser
+          extraHeaders: {
+            Origin: "https://www.hltv.org",
+            Referer: "https://www.hltv.org/",
+            "User-Agent": "Mozilla/5.0 (compatible)"
+          },
+          // you can increase timeouts for slower networks:
+          timeout: 20000,
+          reconnectionAttempts: 5,
+        });
+
+        
+        socket.onAny((event, ...args) => {
+          console.log("event:", event, "args:", args);
+        });
     }
 }

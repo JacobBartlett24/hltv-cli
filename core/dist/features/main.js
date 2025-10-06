@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+import { io } from "socket.io-client";
 let headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -34,6 +35,7 @@ export class HLTV {
             .sort((a, b) => a.display.localeCompare(b.display));
     }
     async fetchMatches() {
+        await this.startWebsocket();
         const response = await fetch(`${this.baseUrl}`);
         const text = await response.text();
         const dom = new JSDOM(text);
@@ -42,12 +44,29 @@ export class HLTV {
             const team1Id = match.getAttribute("team1");
             const team2Id = match.getAttribute("team2");
             const teams = match.querySelector(`[data-livescore-team="${team1Id}"]`);
-            console.log(match.innerHTML);
             return {
                 team1: match.querySelectorAll(".team")[0]?.textContent,
                 team2: match.querySelectorAll(".team")[1]?.textContent,
                 isLive: true
             };
+        });
+    }
+    async startWebsocket() {
+        const socket = io("https://scorebot-lb.hltv.org", {
+            path: "/socket.io",
+            transports: ["polling", "websocket"], // allow polling then upgrade
+            // Node-only: send headers (Origin/Referer/Cookie) similar to browser
+            extraHeaders: {
+                Origin: "https://www.hltv.org",
+                Referer: "https://www.hltv.org/",
+                "User-Agent": "Mozilla/5.0 (compatible)"
+            },
+            // you can increase timeouts for slower networks:
+            timeout: 20000,
+            reconnectionAttempts: 5,
+        });
+        socket.onAny((event, ...args) => {
+            console.log("event:", event, "args:", args);
         });
     }
 }

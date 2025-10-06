@@ -9,7 +9,6 @@ async function initScreen(){
     // });
 
     const matches = await hltv.fetchMatches();
-    console.log(matches)
     // const list = blessed.list({
     //     items: events.map(e => {
     //         return e.display
