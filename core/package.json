@@ -15,6 +15,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "tsc && node dist/ui/hltv.js"
+    "dev": "tsc && node dist/ui/hltv.js",
+    "debug": "tsc && DEBUG=socket.io-client:* node dist/ui/hltv.js"
   }
 }

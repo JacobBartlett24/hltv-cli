@@ -8,7 +8,7 @@ async function initScreen() {
   //   smartCSR: true,
   // });
 
-  const matches = await hltv.startWebsocket();
+  const matches = hltv.startWebsocket()
   // const list = blessed.list({
   //     items: events.map(e => {
   //         return e.display

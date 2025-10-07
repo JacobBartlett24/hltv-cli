@@ -4,7 +4,7 @@ async function initScreen() {
     // const screen = blessed.screen({
     //   smartCSR: true,
     // });
-    const matches = await hltv.startWebsocket();
+    const matches = hltv.startWebsocket();
     // const list = blessed.list({
     //     items: events.map(e => {
     //         return e.display
