@@ -4,8 +4,9 @@ export class HLTV {
     constructor() {
         this.baseUrl = "https://www.hltv.org";
         this.webSocketUrl = "https://scorebot-lb.hltv.org";
+        this.startWebsocket();
     }
-    async fetchHltvEvents() {
+    async fetchEvents() {
         const response = await fetch(`${this.baseUrl}/events#tab-TODAY`);
         const text = await response.text();
         const dom = new JSDOM(text);
@@ -14,54 +15,58 @@ export class HLTV {
         return uniqueEvents
             .map((event) => {
             return {
-                href: event.href,
+                href: event.href.split("/")[3],
                 display: event.querySelector(".event-name-small")?.textContent.trim(),
             };
         })
             .sort((a, b) => a.display.localeCompare(b.display));
     }
-    async fetchMatches() {
+    async fetchMatchData() {
         const response = await fetch(`${this.baseUrl}`);
         const text = await response.text();
         const dom = new JSDOM(text);
         const matches = Array.from(dom.window.document.querySelectorAll(".teambox"));
-        // await this.startWebsocket(
-        //   matches.map((match) => {
-        //     return match.getAttribute("team1") ?? "";
-        //   })
-        // );
-        console.log("done connecting to websocket...");
         return matches.map((match) => {
-            const team1Id = match.getAttribute("team1");
-            const team2Id = match.getAttribute("team2");
-            const teams = match.querySelector(`[data-livescore-team="${team1Id}"]`);
+            // const team1Id = match.getAttribute("team1");
+            // const team2Id = match.getAttribute("team2");
+            // const teams = match.querySelector(`[data-livescore-team="${team1Id}"]`);
             // const matchId = match.getAttribute("data-livescore-match")
+            const hrefSplit = match.parentElement?.getAttribute("href")?.split("/");
+            const eventSlug = hrefSplit ? hrefSplit[3] : "";
             return {
                 team1: match.querySelectorAll(".team")[0]?.textContent,
                 team2: match.querySelectorAll(".team")[1]?.textContent,
+                eventSlug: eventSlug,
+                eventDescription: hrefSplit ? hrefSplit[2] : "",
                 isLive: match.parentElement?.getAttribute("data-livescore-match") !== null,
-                matchId: match.parentElement?.getAttribute("data-livescore-match")
+                id: match.parentElement?.getAttribute("data-livescore-match")
             };
         });
     }
     async startWebsocket() {
-        const socket = io(this.webSocketUrl, {
+        this.socket = io(this.webSocketUrl, {
             upgrade: true,
             timestampParam: "t",
             transports: ["polling", "websocket"], // poll first, then upgrade
+            transportOptions: {
+                polling: {
+                    extraHeaders: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                        "Origin": "https://www.hltv.org",
+                        "Referer": "https://www.hltv.org/",
+                    }
+                },
+                websocket: {
+                    extraHeaders: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                        "Origin": "https://www.hltv.org",
+                        "Referer": "https://www.hltv.org/",
+                    }
+                }
+            }
         });
-        const matches = await (await this.fetchMatches()).filter(match => match.matchId !== null);
+        const socket = this.socket;
         socket.on("connect", async () => {
-            const eventData = {
-                token: "", // Assuming token is required but empty in this case
-                listIds: matches.filter(match => match.matchId !== null)?.map((match) => match.matchId),
-            };
-            // Emitting the 'readyForScores' event with the data
-            socket.emit("readyForScores", JSON.stringify(eventData));
-            socket.on("score", (data) => {
-                console.log(data.listId);
-                console.log("received score");
-            });
         });
     }
 }
