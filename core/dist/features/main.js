@@ -21,16 +21,12 @@ export class HLTV {
         })
             .sort((a, b) => a.display.localeCompare(b.display));
     }
-    async fetchMatchData() {
+    async fetchTournamentMatchData() {
         const response = await fetch(`${this.baseUrl}`);
         const text = await response.text();
         const dom = new JSDOM(text);
         const matches = Array.from(dom.window.document.querySelectorAll(".teambox"));
         return matches.map((match) => {
-            // const team1Id = match.getAttribute("team1");
-            // const team2Id = match.getAttribute("team2");
-            // const teams = match.querySelector(`[data-livescore-team="${team1Id}"]`);
-            // const matchId = match.getAttribute("data-livescore-match")
             const hrefSplit = match.parentElement?.getAttribute("href")?.split("/");
             const eventSlug = hrefSplit ? hrefSplit[3] : "";
             return {
@@ -39,7 +35,7 @@ export class HLTV {
                 eventSlug: eventSlug,
                 eventDescription: hrefSplit ? hrefSplit[2] : "",
                 isLive: match.parentElement?.getAttribute("data-livescore-match") !== null,
-                id: match.parentElement?.getAttribute("data-livescore-match")
+                id: match.parentElement?.getAttribute("data-livescore-match"),
             };
         });
     }
@@ -52,21 +48,20 @@ export class HLTV {
                 polling: {
                     extraHeaders: {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-                        "Origin": "https://www.hltv.org",
-                        "Referer": "https://www.hltv.org/",
-                    }
+                        Origin: "https://www.hltv.org",
+                        Referer: "https://www.hltv.org/",
+                    },
                 },
                 websocket: {
                     extraHeaders: {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-                        "Origin": "https://www.hltv.org",
-                        "Referer": "https://www.hltv.org/",
-                    }
-                }
-            }
+                        Origin: "https://www.hltv.org",
+                        Referer: "https://www.hltv.org/",
+                    },
+                },
+            },
         });
         const socket = this.socket;
-        socket.on("connect", async () => {
-        });
+        socket.on("connect", async () => { });
     }
 }
