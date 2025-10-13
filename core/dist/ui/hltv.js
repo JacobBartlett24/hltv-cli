@@ -1,10 +1,12 @@
 import blessed from "blessed";
 import { HLTV } from "../features/main.js";
 const hltv = new HLTV();
+let screen;
 async function initScreen() {
-    const screen = setScreenDefault();
+    screen = setScreenDefault();
     const eventScreen = await startEventsScreen(screen);
     screen.append(eventScreen);
+    eventScreen.focus();
     screen.render();
 }
 function setScreenDefault() {
@@ -23,22 +25,33 @@ async function startEventsScreen(screen) {
             return e.display;
         }),
         mouse: true,
+        keys: true,
         tags: true,
         border: {
             type: "line",
         },
         style: {
+            selected: {
+                fg: "#D8F",
+            },
             border: {
                 fg: "#f0f0f0",
             },
         },
     });
     list.addListener("select", async (e, index) => {
-        await startEventMatchesScreen(events, index, screen, list);
+        await startEventMatchesScreen(events, index, list);
     });
     return list;
 }
-async function startEventMatchesScreen(events, index, screen, list) {
+async function startEventMatchesScreen(events, index, list) {
+    const loadingScreen = blessed.loading({
+        bg: "#F8F8",
+    });
+    screen.remove(list);
+    screen.append(loadingScreen);
+    loadingScreen.load("fetching matches...");
+    screen.render();
     const matches = await hltv.fetchTournamentMatchData();
     const eventData = {
         token: "", // Assuming token is required but empty in this case
@@ -46,18 +59,18 @@ async function startEventMatchesScreen(events, index, screen, list) {
             .filter((match) => match.eventSlug.includes(events[index].href) && match !== null)
             .map((match) => match.id),
     };
-    screen.remove(list);
     // Emitting the 'readyForScores' event with the data
     if (hltv.socket !== null && hltv.socket !== undefined) {
         hltv.socket.emit("readyForScores", JSON.stringify(eventData));
         hltv.socket.on("score", (scoreData) => {
-            addUpdateMatches(screen, scoreData);
+            addUpdateMatches(scoreData);
+            loadingScreen.stop();
         });
     }
 }
-function addUpdateMatches(screen, scoreData) {
-    console.log(scoreData);
-    for (const [mapId, mapInfo] of Object.entries(scoreData[1].mapScores)) {
+function addUpdateMatches(scoreData) {
+    const [eventName, data] = scoreData;
+    for (const [mapId, mapInfo] of Object.entries(data.mapScores)) {
         console.log(mapInfo);
     }
 }

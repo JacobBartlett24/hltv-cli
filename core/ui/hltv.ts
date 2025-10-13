@@ -4,12 +4,14 @@ import { Event, ScoreData } from "../types/hltv.js";
 import { arrayBuffer } from "stream/consumers";
 
 const hltv = new HLTV();
+let screen: Widgets.Screen;
 
 async function initScreen() {
-  const screen = setScreenDefault();
+  screen = setScreenDefault();
   const eventScreen = await startEventsScreen(screen);
 
   screen.append(eventScreen);
+  eventScreen.focus();
   screen.render();
 }
 
@@ -32,29 +34,40 @@ async function startEventsScreen(screen: Widgets.Screen) {
       return e.display;
     }),
     mouse: true,
+    keys: true,
     tags: true,
     border: {
       type: "line",
     },
     style: {
+      selected: {
+        fg: "#D8F",
+      },
       border: {
         fg: "#f0f0f0",
       },
     },
   });
 
-  list.addListener("select", async (e: Widgets.ListElement, index) => {
-    await startEventMatchesScreen(events, index, screen, list);
+  list.addListener("select", async (e: Widgets.ListElement, index: number) => {
+    await startEventMatchesScreen(events, index, list);
   });
   return list;
 }
 
 async function startEventMatchesScreen(
   events: Event[],
-  index: any,
-  screen: Widgets.Screen,
+  index: number,
   list: Widgets.ListElement
 ) {
+  const loadingScreen = blessed.loading({
+    bg: "#F8F8",
+  });
+  screen.remove(list);
+  screen.append(loadingScreen);
+  screen.render();
+  loadingScreen.load("Initializing matches...");
+
   const matches = await hltv.fetchTournamentMatchData();
 
   const eventData = {
@@ -67,19 +80,19 @@ async function startEventMatchesScreen(
       .map((match) => match.id),
   };
 
-  screen.remove(list);
-
   // Emitting the 'readyForScores' event with the data
   if (hltv.socket !== null && hltv.socket !== undefined) {
     hltv.socket.emit("readyForScores", JSON.stringify(eventData));
 
     hltv.socket.on("score", (scoreData: ScoreData) => {
-      addUpdateMatches(screen, scoreData);
+      addUpdateMatches(scoreData);
     });
   }
+
+  loadingScreen.stop();
 }
 
-function addUpdateMatches(screen: Widgets.Screen, scoreData: ScoreData) {
+function addUpdateMatches(scoreData: ScoreData) {
   const [eventName, data] = scoreData;
 
   for (const [mapId, mapInfo] of Object.entries(data.mapScores)) {
