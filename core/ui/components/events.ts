@@ -27,8 +27,14 @@ export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
     },
   });
 
+  list.addItem("All Matches");
+
   list.addListener("select", async (e: Widgets.ListElement, index: number) => {
-    await matchesScreen(events, index, list, screen, hltv);
+    if (e.content === "All Matches") {
+      await matchesScreen([], index, list, screen, hltv);
+    } else {
+      await matchesScreen(events, index, list, screen, hltv);
+    }
   });
 
   return list;

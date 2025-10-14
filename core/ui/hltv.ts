@@ -1,14 +1,15 @@
 import blessed, { Widgets } from "blessed";
 import { HLTV } from "../features/main.js";
 import { Event, ScoreData } from "../types/hltv.js";
-import { arrayBuffer } from "stream/consumers";
 import { eventsScreen } from "./components/events.js";
+import { startingTitle } from "./components/startingTitle.js";
 
 const hltv = new HLTV();
 let screen: Widgets.Screen;
 
 async function initScreen() {
   screen = setScreenDefault();
+  await startingTitle(screen);
   const eventScreen = await eventsScreen(screen, hltv);
 
   screen.append(eventScreen);

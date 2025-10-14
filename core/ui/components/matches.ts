@@ -22,7 +22,9 @@ export async function matchesScreen(
     listIds: matches
       .filter(
         (match) =>
-          match.eventSlug.includes(events[index].href) && match !== null
+          (events.length !== 0
+            ? match.eventSlug.includes(events[index].href)
+            : true) && match !== null
       )
       .map((match) => match.id),
   };
@@ -46,9 +48,22 @@ export async function matchesScreen(
 }
 
 function addUpdateMatches(scoreData: ScoreData) {
-  const [eventName, data] = scoreData;
+  const matchLayout = blessed.layout({
+    layout: "grid",
+    height: "100%",
+    width: "100%",
+  });
 
-  for (const [mapId, mapInfo] of Object.entries(data.mapScores)) {
-    console.log(mapInfo);
+  for (const [mapId, mapInfo] of Object.entries(scoreData.mapScores)) {
+    matchLayout.append(
+      blessed.box({
+        width: "50%",
+        content: "",
+        height: "10%",
+        border: {
+          type: "line",
+        },
+      })
+    );
   }
 }
