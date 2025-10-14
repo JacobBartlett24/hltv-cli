@@ -1,6 +1,7 @@
 import blessed, { Widgets } from "blessed";
 import { HLTV } from "../../features/main";
 import { ScoreData, Event } from "../../types/hltv";
+import { match } from "assert";
 
 export async function matchesScreen(
   events: Event[],
@@ -31,6 +32,12 @@ export async function matchesScreen(
 
   // Emitting the 'readyForScores' event with the data
   if (hltv.socket !== null && hltv.socket !== undefined) {
+    const matchLayout = blessed.layout({
+      layout: "grid",
+      height: "100%",
+      width: "100%",
+    });
+
     let isSendingScores: boolean = false;
 
     setInterval(() => {
@@ -40,30 +47,24 @@ export async function matchesScreen(
     hltv.socket.on("score", (scoreData: ScoreData) => {
       isSendingScores = true;
       loadingScreen.stop();
-      addUpdateMatches(scoreData);
+      addUpdateMatches(scoreData, matchLayout);
     });
   }
 
   loadingScreen.stop();
 }
 
-function addUpdateMatches(scoreData: ScoreData) {
-  const matchLayout = blessed.layout({
-    layout: "grid",
-    height: "100%",
-    width: "100%",
-  });
-
-  for (const [mapId, mapInfo] of Object.entries(scoreData.mapScores)) {
-    matchLayout.append(
-      blessed.box({
-        width: "50%",
-        content: "",
-        height: "10%",
-        border: {
-          type: "line",
-        },
-      })
-    );
-  }
+function addUpdateMatches(
+  scoreData: ScoreData,
+  matchLayout: Widgets.LayoutElement
+) {
+  matchLayout.append(
+    blessed.box({
+      width: "50%",
+      height: "10%",
+      border: {
+        type: "line",
+      },
+    })
+  );
 }
