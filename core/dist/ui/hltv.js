@@ -1,12 +1,11 @@
 import blessed from "blessed";
 import { HLTV } from "../features/main.js";
 import { eventsScreen } from "./components/events.js";
-import { startingTitle } from "./components/startingTitle.js";
 const hltv = new HLTV();
 let screen;
 async function initScreen() {
     screen = setScreenDefault();
-    await startingTitle(screen);
+    // await startingTitle(screen);
     const eventScreen = await eventsScreen(screen, hltv);
     screen.append(eventScreen);
     eventScreen.focus();

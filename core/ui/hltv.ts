@@ -9,7 +9,7 @@ let screen: Widgets.Screen;
 
 async function initScreen() {
   screen = setScreenDefault();
-  await startingTitle(screen);
+  // await startingTitle(screen);
   const eventScreen = await eventsScreen(screen, hltv);
 
   screen.append(eventScreen);

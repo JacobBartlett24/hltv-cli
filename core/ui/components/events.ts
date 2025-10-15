@@ -8,9 +8,14 @@ export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
   const events = await hltv.fetchEvents();
 
   const list = blessed.list({
-    items: events.map((e) => {
-      return e.display;
-    }),
+    items: events
+      .sort((a, b) => {
+        // what stupid shit does js think
+        return Number(b.ongoing) - Number(a.ongoing);
+      })
+      .map((e) => {
+        return `${e.display} ${e.ongoing ? "(Live)" : ""}`;
+      }),
     mouse: true,
     keys: true,
     tags: true,

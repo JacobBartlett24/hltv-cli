@@ -1,6 +1,7 @@
 export type Event = {
   display: string;
   href: string;
+  ongoing: boolean;
 };
 
 export type Match = {

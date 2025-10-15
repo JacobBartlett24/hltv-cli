@@ -19,6 +19,8 @@ export class HLTV {
 
   async fetchEvents(): Promise<Event[]> {
     const response = await fetch(`${this.baseUrl}/events#tab-TODAY`);
+    const matches = await this.fetchTournamentMatchData();
+
     const text = await response.text();
     const dom = new JSDOM(text);
 
@@ -33,14 +35,24 @@ export class HLTV {
       new Map(events.map((e) => [e.href, e])).values()
     );
 
-    return uniqueEvents
+    const allEvents = uniqueEvents
       .map((event) => {
+        const href = event.href.split("/")[3];
+        const display = event
+          .querySelector(".event-name-small")
+          ?.textContent.trim();
+
         return {
-          href: event.href.split("/")[3],
-          display: event.querySelector(".event-name-small")?.textContent.trim(),
+          href: href,
+          display: display,
+          ongoing: matches.some((m) => {
+            return m.eventSlug.includes(href) && m.isLive;
+          }),
         } as Event;
       })
       .sort((a, b) => a.display.localeCompare(b.display));
+
+    return allEvents;
   }
 
   async fetchTournamentMatchData() {
