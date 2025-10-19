@@ -5,14 +5,19 @@ export type Event = {
 };
 
 export type Match = {
-  team1: string;
-  team2: string;
+  team1: Team;
+  team2: Team;
   isLive: boolean;
   score: string;
   id: string;
   eventDescription: string;
   eventSlug: string;
 };
+
+export type Team = {
+  id: string,
+  name: string
+}
 
 export type ScoreData = {
   mapScores: {

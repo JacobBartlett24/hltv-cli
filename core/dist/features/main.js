@@ -6,11 +6,20 @@ export class HLTV {
         this.webSocketUrl = "https://scorebot-lb.hltv.org";
         this.startWebsocket();
     }
+    async getTeam() {
+        const suffix = "asd";
+        const url = `${this.baseUrl}/${suffix}`;
+        const dom = await this.getPageDom(url);
+        const teamName = dom
+            .window
+            .document
+            .querySelector(".profile-team-name")?.textContent ??
+            "no team found";
+        return teamName;
+    }
     async fetchEvents() {
-        const response = await fetch(`${this.baseUrl}/events#tab-TODAY`);
+        const dom = await this.getPageDom(`${this.baseUrl}/events#tab-TODAY`);
         const matches = await this.fetchTournamentMatchData();
-        const text = await response.text();
-        const dom = new JSDOM(text);
         const events = Array.from(dom.window.document.querySelectorAll(".ongoing-event")).filter((element) => element instanceof dom.window.HTMLAnchorElement);
         const uniqueEvents = Array.from(new Map(events.map((e) => [e.href, e])).values());
         const allEvents = uniqueEvents
@@ -30,6 +39,12 @@ export class HLTV {
             .sort((a, b) => a.display.localeCompare(b.display));
         return allEvents;
     }
+    async getPageDom(url) {
+        const response = await fetch(url);
+        const text = await response.text();
+        const dom = new JSDOM(text);
+        return dom;
+    }
     async fetchTournamentMatchData() {
         const response = await fetch(`${this.baseUrl}`);
         const text = await response.text();
@@ -39,8 +54,14 @@ export class HLTV {
             const hrefSplit = match.parentElement?.getAttribute("href")?.split("/");
             const eventSlug = hrefSplit ? hrefSplit[3] : "";
             return {
-                team1: match.querySelectorAll(".team")[0]?.textContent,
-                team2: match.querySelectorAll(".team")[1]?.textContent,
+                team1: {
+                    id: match.getAttribute("team1"),
+                    name: match.querySelectorAll(".team")[0]?.textContent
+                },
+                team2: {
+                    id: match.getAttribute("team2"),
+                    name: match.querySelectorAll(".team")[1]?.textContent
+                },
                 eventSlug: eventSlug,
                 eventDescription: hrefSplit ? hrefSplit[2] : "",
                 isLive: match.parentElement?.getAttribute("data-livescore-match") !== null,

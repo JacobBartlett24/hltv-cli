@@ -14,7 +14,7 @@ export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
         return Number(b.ongoing) - Number(a.ongoing);
       })
       .map((e) => {
-        return `${e.display} ${e.ongoing ? "(Live)" : ""}`;
+        return `${e.ongoing ? "(Live)" : ""} ${e.display}`;
       }),
     mouse: true,
     keys: true,
