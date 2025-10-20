@@ -4,17 +4,17 @@ import { Event, ScoreData } from "../types/hltv.js";
 import { eventsScreen } from "./components/events.js";
 import { startingTitle } from "./components/startingTitle.js";
 
-const hltv = new HLTV();
-let screen: Widgets.Screen;
+export const hltv = new HLTV();
+export let mainScreen: Widgets.Screen;
 
 async function initScreen() {
-  screen = setScreenDefault();
-  // await startingTitle(screen);
-  const eventScreen = await eventsScreen(screen, hltv);
+  mainScreen = setScreenDefault();
+  await startingTitle();
+  const eventScreen = await eventsScreen();
 
-  screen.append(eventScreen);
+  mainScreen.append(eventScreen);
   eventScreen.focus();
-  screen.render();
+  mainScreen.render();
 }
 
 function setScreenDefault() {

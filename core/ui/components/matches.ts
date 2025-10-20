@@ -1,27 +1,23 @@
 import blessed, { loading, Widgets } from "blessed";
-import { HLTV } from "../../features/hltv";
-import { ScoreData, Event, Match, Team } from "../../types/hltv";
+import { ScoreData, Event, Match, Team } from "../../types/hltv.js";
 import { match } from "assert";
+import { hltv, mainScreen } from "../main.js";
 
 export async function matchesScreen(
-  events: Event[],
-  index: number,
-  list: Widgets.ListElement,
-  screen: Widgets.Screen,
-  hltv: HLTV
+  event: Event | null,
 ) {
   const loadingScreen = blessed.loading({});
-  screen.remove(list);
-  screen.append(loadingScreen);
-  screen.render();
+  mainScreen.render();
+  mainScreen.append(loadingScreen);
+  mainScreen.render();
   loadingScreen.load("Waiting for scorebot to connect...");
 
   const matches = await hltv.fetchTournamentMatchData();
 
   const eventMatches = matches.filter(
     (match) =>
-      (events.length !== 0
-        ? match.eventSlug.includes(events[index].href)
+      (event 
+        ? match.eventSlug.includes(event.href)
         : true) && match !== null
   );
 
@@ -40,7 +36,7 @@ export async function matchesScreen(
   });
 
   addUpdateMatches(null, matchLayout, eventMatches);
-  screen.append(matchLayout);
+  mainScreen.append(matchLayout);
 
   loadingScreen.stop();
   loadingScreen.load("Sending socket emit event...");
@@ -54,7 +50,7 @@ export async function matchesScreen(
     hltv.socket.on("score", (scoreData: ScoreData) => {
       loadingScreen.stop();
       addUpdateMatches(scoreData, matchLayout, eventMatches);
-      screen.append(matchLayout);
+      mainScreen.append(matchLayout);
     });
   }
 

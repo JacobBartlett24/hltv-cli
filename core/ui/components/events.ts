@@ -3,8 +3,10 @@ import { HLTV } from "../../features/hltv.js";
 import { Event, ScoreData } from "../../types/hltv.js";
 import { arrayBuffer } from "stream/consumers";
 import { matchesScreen } from "./matches.js";
+import { mainScreen, hltv } from "../main.js";
+import { eventMenuScreen } from "./eventMenu.js";
 
-export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
+export async function eventsScreen() {
   const events = await hltv.fetchEvents();
 
   const list = blessed.list({
@@ -35,11 +37,7 @@ export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
   list.addItem("All Matches");
 
   list.addListener("select", async (e: Widgets.ListElement, index: number) => {
-    if (e.content === "All Matches") {
-      await matchesScreen([], index, list, screen, hltv);
-    } else {
-      await matchesScreen(events, index, list, screen, hltv);
-    }
+    await eventMenuScreen(events[index]);
   });
 
   return list;
