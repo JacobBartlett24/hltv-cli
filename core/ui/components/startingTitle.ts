@@ -6,9 +6,10 @@ import { mainScreen } from "../main.js";
 export async function startingTitle() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
+
   const imageWidget: Widgets.Node = (blessed as any).image({
     parent: mainScreen,
-    file: path.join(__dirname, "startingScreen.gif"),
+    file: path.join(__dirname, "./media/startingScreen.gif"),
     type: "ansi", // or "overlay" if you have w3mimgdisplay
     top: 0,
     left: 0,
@@ -16,11 +17,9 @@ export async function startingTitle() {
     height: "100%",
   });
 
-  mainScreen.append(imageWidget);
 
   await sleep(2000);
 
-  mainScreen.remove(imageWidget);
 }
 
 function sleep(ms: number) {
