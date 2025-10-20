@@ -1,5 +1,5 @@
 import blessed, { Widgets } from "blessed";
-import { HLTV } from "../../features/main.js";
+import { HLTV } from "../../features/hltv.js";
 import { Event, ScoreData } from "../../types/hltv.js";
 import { arrayBuffer } from "stream/consumers";
 import { matchesScreen } from "./matches.js";
@@ -14,7 +14,7 @@ export async function eventsScreen(screen: Widgets.Screen, hltv: HLTV) {
         return Number(b.ongoing) - Number(a.ongoing);
       })
       .map((e) => {
-        return `${e.ongoing ? "(Live)" : ""} ${e.display}`;
+        return `${e.ongoing ? "(Live) " : ""}${e.display}`;
       }),
     mouse: true,
     keys: true,

@@ -1,5 +1,5 @@
 import blessed, { Widgets } from "blessed";
-import { HLTV } from "../features/main.js";
+import { HLTV } from "../features/hltv.js";
 import { Event, ScoreData } from "../types/hltv.js";
 import { eventsScreen } from "./components/events.js";
 import { startingTitle } from "./components/startingTitle.js";
