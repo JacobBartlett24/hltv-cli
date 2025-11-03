@@ -13,10 +13,12 @@
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.6.2",
     "@types/socket.io-client": "^1.4.36",
+    "copyfiles": "^2.4.1",
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "tsc && node dist/ui/main.js",
-    "debug": "tsc && DEBUG=socket.io-client:* node dist/ui/main.js"
+    "dev": "npm run build && node dist/ui/main.js",
+    "debug": "npm run build && DEBUG=socket.io-client:* node dist/ui/main.js",
+    "build": "tsc && copyfiles -u 1 src/ui/components/media/**/* dist/ui/components/media"
   }
 }

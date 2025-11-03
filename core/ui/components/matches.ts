@@ -3,9 +3,7 @@ import { ScoreData, Event, Match, Team } from "../../types/hltv.js";
 import { match } from "assert";
 import { hltv, mainScreen } from "../main.js";
 
-export async function matchesScreen(
-  event: Event | null,
-) {
+export async function matchesScreen(event: Event | null) {
   const loadingScreen = blessed.loading({});
   mainScreen.render();
   mainScreen.append(loadingScreen);
@@ -16,9 +14,7 @@ export async function matchesScreen(
 
   const eventMatches = matches.filter(
     (match) =>
-      (event 
-        ? match.eventSlug.includes(event.href)
-        : true) && match !== null
+      (event ? match.eventSlug.includes(event.href) : true) && match !== null
   );
 
   const eventData = {
@@ -26,9 +22,6 @@ export async function matchesScreen(
     listIds: eventMatches.map((match) => match.id),
   };
 
-  // while (!hltv.socket?.connected) {
-  //   await sleep(2000);
-  // }
   const matchLayout = blessed.layout({
     layout: "grid",
     height: "100%",
@@ -49,6 +42,7 @@ export async function matchesScreen(
 
     hltv.socket.on("score", (scoreData: ScoreData) => {
       loadingScreen.stop();
+      matchLayout.render();
       addUpdateMatches(scoreData, matchLayout, eventMatches);
       mainScreen.append(matchLayout);
     });

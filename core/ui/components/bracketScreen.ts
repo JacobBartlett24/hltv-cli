@@ -1,28 +1,34 @@
 import blessed, { Widgets } from "blessed";
+import { Event } from "../../types/hltv.js";
+import { mainScreen } from "../main.js";
 import { fileURLToPath } from "url";
 import path from "path";
-import { mainScreen } from "../main.js";
+import fs from "fs";
 
-export async function startingTitle() {
+export function bracketScreen(event: Event) {
+  mainScreen.render();
+
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
+  blessed.box({
+    width: 4,
+    height: 4,
+    border: {
+      type: "line",
+    },
+  });
+
   const imageWidget: Widgets.Node = (blessed as any).image({
     parent: mainScreen,
-    file: path.join(__dirname, "./media/startingScreen.gif"),
+    file: path.join(__dirname, "./media/bRk2sh_tSTO6fq1GLhgcal_real.png"),
     type: "ansi", // or "overlay" if you have w3mimgdisplay
     top: 0,
     left: 0,
-    width: "100%",
-    height: "100%",
+    width: 3,
+    height: 3,
   });
 
   mainScreen.append(imageWidget);
   mainScreen.render();
-
-  // await sleep(2000);
-}
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
