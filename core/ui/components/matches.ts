@@ -42,9 +42,12 @@ export async function matchesScreen(event: Event | null) {
 
     hltv.socket.on("score", (scoreData: ScoreData) => {
       loadingScreen.stop();
-      matchLayout.render();
-      addUpdateMatches(scoreData, matchLayout, eventMatches);
-      mainScreen.append(matchLayout);
+      addUpdateMatches(
+        scoreData,
+        matchLayout,
+        eventMatches.sort((a, b) => (a.team1.name < b.team1.name ? 1 : 0))
+      );
+      mainScreen.render();
     });
   }
 
@@ -56,6 +59,7 @@ function addUpdateMatches(
   matchLayout: Widgets.LayoutElement,
   eventMatches: Match[]
 ) {
+  matchLayout.children.forEach((c) => c.detach());
   for (let i = 0; i < eventMatches.length; i++) {
     matchLayout.append(
       blessed.box({
