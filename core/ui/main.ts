@@ -3,14 +3,20 @@ import { HLTV } from "../features/hltv.js";
 import { Event, ScoreData } from "../types/hltv.js";
 import { eventsScreen } from "./components/events.js";
 import { startingTitle } from "./components/startingTitle.js";
+import { showDebugBox } from "./util/testing/showDebugBox.js";
 
 export const hltv = new HLTV();
 export let mainScreen: Widgets.Screen;
 
 async function initScreen() {
   mainScreen = setScreenDefault();
-  await startingTitle();
+  // await startingTitle();
   const eventScreen = await eventsScreen();
+
+  if (eventScreen.getItem(0).content === "All Matches") {
+    showDebugBox("HLTV most likely blocked us, try again later...");
+    return;
+  }
 
   mainScreen.append(eventScreen);
   eventScreen.focus();

@@ -8,6 +8,7 @@ import type {
   HalfScore,
 } from "../types/hltv";
 import { compileFunction } from "vm";
+import { showDebugBox } from "../ui/util/testing/showDebugBox.js";
 
 export class HLTV {
   baseUrl: string = "https://www.hltv.org";
@@ -22,20 +23,28 @@ export class HLTV {
     const suffix = "asd";
     const url = `${this.baseUrl}/${suffix}`;
 
-    const dom = await this.getPageDom(url)
+    const dom = await this.getPageDom(url);
 
-    const teamName = dom
-      .window
-      .document
-      .querySelector(".profile-team-name")?.textContent ?? 
-      "no team found"
+    const teamName =
+      dom.window.document.querySelector(".profile-team-name")?.textContent ??
+      "no team found";
 
-    return teamName
+    return teamName;
+  }
+
+  async fetchBracket() {
+    const dom = await this.getPageDom(`${this.baseUrl}`);
   }
 
   async fetchEvents(): Promise<Event[]> {
-    const dom = await this.getPageDom(`${this.baseUrl}/events#tab-TODAY`);
-    
+    let dom: JSDOM;
+
+    try {
+      dom = await this.getPageDom(`${this.baseUrl}/events#tab-TODAY`);
+    } catch (error) {
+      return [];
+    }
+
     const matches = await this.fetchTournamentMatchData();
     const events: HTMLAnchorElement[] = Array.from(
       dom.window.document.querySelectorAll(".ongoing-event")
@@ -71,9 +80,12 @@ export class HLTV {
   private async getPageDom(url: string) {
     const response = await fetch(url);
 
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+    }
+
     const text = await response.text();
     const dom = new JSDOM(text);
-
     return dom;
   }
 
@@ -93,11 +105,11 @@ export class HLTV {
       return {
         team1: {
           id: match.getAttribute("team1"),
-          name: match.querySelectorAll(".team")[0]?.textContent
+          name: match.querySelectorAll(".team")[0]?.textContent,
         },
         team2: {
           id: match.getAttribute("team2"),
-          name: match.querySelectorAll(".team")[1]?.textContent
+          name: match.querySelectorAll(".team")[1]?.textContent,
         },
         eventSlug: eventSlug,
         eventDescription: hrefSplit ? hrefSplit[2] : "",

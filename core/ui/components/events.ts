@@ -5,6 +5,7 @@ import { arrayBuffer } from "stream/consumers";
 import { matchesScreen } from "./matches.js";
 import { mainScreen, hltv } from "../main.js";
 import { eventMenuScreen } from "./eventMenu.js";
+import { showDebugBox } from "../util/testing/showDebugBox.js";
 
 export async function eventsScreen() {
   const events = await hltv.fetchEvents();

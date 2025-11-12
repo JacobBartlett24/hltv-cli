@@ -1,9 +1,7 @@
 import blessed, { Widgets } from "blessed";
 import { Event } from "../../types/hltv.js";
 import { mainScreen } from "../main.js";
-import { fileURLToPath } from "url";
-import path from "path";
-import fs from "fs";
+import { showDebugBox } from "../util/testing/showDebugBox.js";
 
 export async function bracketScreen(event: Event) {
   const response = await fetch(
@@ -22,4 +20,6 @@ export async function bracketScreen(event: Event) {
   mainScreen.append(eventDisplay);
 
   mainScreen.render();
+
+  showDebugBox(JSON.stringify(event));
 }
