@@ -17,8 +17,8 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "npm run build && node dist/ui/main.js",
-    "debug": "npm run build && DEBUG=socket.io-client:* node dist/ui/main.js",
-    "build": "tsc && copyfiles -u 1 src/ui/components/media/**/* dist/ui/components/media"
+    "dev": "npm run build && node core/dist/ui/main.js",
+    "debug": "npm run build && DEBUG=socket.io-client:* node core/dist/ui/main.js",
+    "build": "tsc && copyfiles -u 1 core/src/ui/components/media/**/* core/dist/ui/components/media"
   }
 }
